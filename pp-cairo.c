@@ -475,7 +475,8 @@ _cairo_render_text (CairoRenderer *renderer,
                               &text_x, &text_y,
                               &text_scale);
 
-  pp_get_shading_position_size (renderer->height, renderer->width, /* XXX: is this right order?? */
+  pp_get_shading_position_size (point,
+                                renderer->height, renderer->width, /* XXX: is this right order?? */
                                 text_x, text_y,
                                 text_width, text_height,
                                 text_scale,

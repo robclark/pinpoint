@@ -1710,7 +1710,8 @@ static void update_commandline_shading (ClutterRenderer *renderer)
   point = pp_slidep->data;
   clutter_actor_get_size (renderer->commandline, &text_width, &text_height);
   clutter_actor_get_position (renderer->commandline, &text_x, &text_y);
-  pp_get_shading_position_size (clutter_actor_get_width (renderer->stage),
+  pp_get_shading_position_size (point,
+                                clutter_actor_get_width (renderer->stage),
                                 clutter_actor_get_height (renderer->stage),
                                 text_x, text_y,
                                 text_width, text_height,
@@ -2186,6 +2187,7 @@ show_slide (ClutterRenderer *renderer, gboolean backwards)
              &text_scale);
 
          pp_get_shading_position_size (
+             point,
              clutter_actor_get_width (renderer->stage),
              clutter_actor_get_height (renderer->stage),
              text_x, text_y,
@@ -2327,6 +2329,7 @@ show_slide (ClutterRenderer *renderer, gboolean backwards)
            clutter_color_from_string (&color, point->shading_color);
 
            pp_get_shading_position_size (
+                point,
                 clutter_actor_get_width (renderer->stage),
                 clutter_actor_get_height (renderer->stage),
                 text_x, text_y,

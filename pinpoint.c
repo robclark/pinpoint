@@ -380,13 +380,20 @@ pp_get_text_position_scale (PinPointPoint *point,
         break;
     }
 
+  if (point->text_override & VALID_X)
+    x = stage_width * point->text_x;
+
+  if (point->text_override & VALID_Y)
+    y = stage_height * point->text_y;
+
   *text_scale = sx;
   *text_x = x;
   *text_y = y;
 }
 
 void
-pp_get_shading_position_size (float stage_width,
+pp_get_shading_position_size (PinPointPoint *point,
+                              float stage_width,
                               float stage_height,
                               float text_x,
                               float text_y,
@@ -406,6 +413,14 @@ pp_get_shading_position_size (float stage_width,
   *shading_y = text_y - padding;
   *shading_width = text_width * text_scale + padding * 2;
   *shading_height = text_height * text_scale + padding * 2;
+
+#define max(a, b) ((a) > (b) ? (a) : (b))
+  if (point->text_override & VALID_W)
+    *shading_width = max(*shading_width, point->text_w * stage_width);
+
+  if (point->text_override & VALID_H)
+    *shading_height = max(*shading_height, point->text_h * stage_height);
+
 }
 
 void     pp_parse_slides  (PinPointRenderer *renderer,
@@ -463,20 +478,24 @@ parse_setting (PinPointPoint *point,
   IF_PREFIX("command=")    point->command = STRING;
   IF_PREFIX("transition=") point->transition = STRING;
   IF_PREFIX("camera-framerate=")  point->camera_framerate = INT;
+  IF_PREFIX("text-x=")     { point->text_x = FLOAT; point->text_override |= VALID_X; }
+  IF_PREFIX("text-y=")     { point->text_y = FLOAT; point->text_override |= VALID_Y; }
+  IF_PREFIX("text-w=")     { point->text_w = FLOAT; point->text_override |= VALID_W; }
+  IF_PREFIX("text-h=")     { point->text_h = FLOAT; point->text_override |= VALID_H; }
   IF_PREFIX("camera-resolution=") RESOLUTION (point->camera_resolution);
   IF_EQUAL("fill")         point->bg_scale = PP_BG_FILL;
   IF_EQUAL("fit")          point->bg_scale = PP_BG_FIT;
   IF_EQUAL("stretch")      point->bg_scale = PP_BG_STRETCH;
   IF_EQUAL("unscaled")     point->bg_scale = PP_BG_UNSCALED;
-  IF_EQUAL("center")       point->position = CLUTTER_GRAVITY_CENTER;
-  IF_EQUAL("top")          point->position = CLUTTER_GRAVITY_NORTH;
-  IF_EQUAL("bottom")       point->position = CLUTTER_GRAVITY_SOUTH;
-  IF_EQUAL("left")         point->position = CLUTTER_GRAVITY_WEST;
-  IF_EQUAL("right")        point->position = CLUTTER_GRAVITY_EAST;
-  IF_EQUAL("top-left")     point->position = CLUTTER_GRAVITY_NORTH_WEST;
-  IF_EQUAL("top-right")    point->position = CLUTTER_GRAVITY_NORTH_EAST;
-  IF_EQUAL("bottom-left")  point->position = CLUTTER_GRAVITY_SOUTH_WEST;
-  IF_EQUAL("bottom-right") point->position = CLUTTER_GRAVITY_SOUTH_EAST;
+  IF_EQUAL("center")       { point->position = CLUTTER_GRAVITY_CENTER;     point->text_override = 0; }
+  IF_EQUAL("top")          { point->position = CLUTTER_GRAVITY_NORTH;      point->text_override = 0; }
+  IF_EQUAL("bottom")       { point->position = CLUTTER_GRAVITY_SOUTH;      point->text_override = 0; }
+  IF_EQUAL("left")         { point->position = CLUTTER_GRAVITY_WEST;       point->text_override = 0; }
+  IF_EQUAL("right")        { point->position = CLUTTER_GRAVITY_EAST;       point->text_override = 0; }
+  IF_EQUAL("top-left")     { point->position = CLUTTER_GRAVITY_NORTH_WEST; point->text_override = 0; }
+  IF_EQUAL("top-right")    { point->position = CLUTTER_GRAVITY_NORTH_EAST; point->text_override = 0; }
+  IF_EQUAL("bottom-left")  { point->position = CLUTTER_GRAVITY_SOUTH_WEST; point->text_override = 0; }
+  IF_EQUAL("bottom-right") { point->position = CLUTTER_GRAVITY_SOUTH_EAST; point->text_override = 0; }
   IF_EQUAL("no-markup")    point->use_markup = FALSE;
   IF_EQUAL("markup")       point->use_markup = TRUE;
   DEFAULT                  point->bg = g_intern_string (setting);

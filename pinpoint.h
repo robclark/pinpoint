@@ -113,6 +113,18 @@ struct _PinPointPoint
   gint              camera_framerate;
   PPResolution      camera_resolution;
 
+  enum {
+    VALID_X = 0x1,
+    VALID_Y = 0x2,
+    VALID_W = 0x4,
+    VALID_H = 0x8,
+  } text_override;
+
+  float             text_x;
+  float             text_y;
+  float             text_w;
+  float             text_h;
+
   void              *data;            /* the renderer can attach data here */
 };
 
@@ -161,7 +173,8 @@ pp_get_text_position_scale (PinPointPoint *point,
                             float         *text_scale);
 
 void
-pp_get_shading_position_size (float stage_width,
+pp_get_shading_position_size (PinPointPoint *point,
+                              float stage_width,
                               float stage_height,
                               float text_x,
                               float text_y,
